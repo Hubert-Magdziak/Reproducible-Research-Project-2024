@@ -29,7 +29,7 @@ plot_histograms <- function(data) {
   numeric_cols <- sapply(data, is.numeric)
   data_numeric <- data[, numeric_cols]
   
-  # Iterate through numeric columns and plot histograms
+
   for (col in colnames(data_numeric)) {
     hist(data_numeric[[col]], main = paste("Histogram of", col), xlab = col, ylab = "Frequency", col = "blue", border = "black")
   }
