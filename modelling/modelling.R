@@ -22,17 +22,19 @@ data %>%
 
 # Check the distribution of variables
 
-# Write a function "plot_hist" to plot the distribution of numeric variable
+# Write a function "plot_histogram" to plot the distribution of every numeric variable
 
-plot_hist <- function(df, x) {
-  if (!is.character(df[[x]])){
-    hist(df[[x]], 
-         main = paste('Histogram of variable', x),
-         col = "lightblue",
-         xlab = x)
-  } else {
-    print("Wrong type!")
+plot_histograms <- function(data) {
+  
+  numeric_cols <- sapply(data, is.numeric)
+  data_numeric <- data[, numeric_cols]
+  
+  # Iterate through numeric columns and plot histograms
+  for (col in colnames(data_numeric)) {
+    hist(data_numeric[[col]], main = paste("Histogram of", col), xlab = col, ylab = "Frequency", col = "blue", border = "black")
   }
 }
 
-plot_hist(data, 'af_key')
+
+plot_histograms(data)
+
