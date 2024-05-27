@@ -54,8 +54,9 @@ par(mfrow = c(1,1))
 
 data$log_af_acousticness <- log1p(data$af_acousticness)
 
-# Model
+# Modelling
 
+# Fixed Effects Model
 model.fixed <- plm(af_valence ~ sky + temperature + log_streams + 
                      af_danceability + af_energy + af_key + 
                      af_loudness + af_speechiness + af_acousticness + 
@@ -64,12 +65,29 @@ model.fixed <- plm(af_valence ~ sky + temperature + log_streams +
 
 summary(model.fixed)
 
+# Random Effects Model
+model.random <- plm(af_valence ~ sky + temperature + log_streams + 
+                     af_danceability + af_energy + af_key + 
+                     af_loudness + af_speechiness + af_acousticness + 
+                     af_tempo, data = data, index = c("country", "year_month"),
+                   model = "random")
+
+summary(model.random)
+
+# Pooled Regression Model
 model.OLS <- lm(af_valence ~ sky + temperature + log_streams + 
                      af_danceability + af_energy + af_key + 
                      af_loudness + af_speechiness + af_acousticness + 
                      af_tempo, data = data)
 
 summary(model.OLS)
+
+# Select between Fixed Effects and Random Effects model
+
+# Hausman test
+phtest(model.fixed, model.random)
+# p-value < 5% (significance level alpha), we reject null hypothesis in favor
+# of alternative hypothesis - Cov(u,X) != 0 - only Fixed Effects Model is appropriate
 
 # Test for poolability
 pFtest(model.fixed, model.OLS)
@@ -81,3 +99,4 @@ pbgtest(model.fixed)
 # p-value < 5% (significance level alpha), we reject null hypothesis
 # in favor of alternative hypothbesis - serial correlation exists in 
 # indiosyncratic errors
+
