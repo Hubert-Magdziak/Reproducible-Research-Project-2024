@@ -1,7 +1,8 @@
 # Libraries
 library(dplyr)
 library(ggplot2)
-
+library(plm)
+library(zoo)
 # Read the data
 data <- read.csv(file = "preprocessed_data.csv")
 data <- data %>% select(-X)
@@ -52,3 +53,31 @@ hist(log1p(data$af_acousticness), main = "Histogram of variable af_acousticness"
 par(mfrow = c(1,1))
 
 data$log_af_acousticness <- log1p(data$af_acousticness)
+
+# Model
+
+model.fixed <- plm(af_valence ~ sky + temperature + log_streams + 
+                     af_danceability + af_energy + af_key + 
+                     af_loudness + af_speechiness + af_acousticness + 
+                     af_tempo, data = data, index = c("country", "year_month"),
+                   model = "within")
+
+summary(model.fixed)
+
+model.OLS <- lm(af_valence ~ sky + temperature + log_streams + 
+                     af_danceability + af_energy + af_key + 
+                     af_loudness + af_speechiness + af_acousticness + 
+                     af_tempo, data = data)
+
+summary(model.OLS)
+
+# Test for poolability
+pFtest(model.fixed, model.OLS)
+# p-value < 5% (significance level alpha), we reject null hypothesis
+# in favor of alternative hypothesis - fixed effects model is more appropriate
+
+# Test for correlation (Breusch-Godfrey test)
+pbgtest(model.fixed)
+# p-value < 5% (significance level alpha), we reject null hypothesis
+# in favor of alternative hypothbesis - serial correlation exists in 
+# indiosyncratic errors
