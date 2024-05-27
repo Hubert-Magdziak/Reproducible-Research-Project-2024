@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(plm)
 library(zoo)
+library(lmtest)
 # Read the data
 data <- read.csv(file = "preprocessed_data.csv")
 data <- data %>% select(-X)
@@ -100,3 +101,18 @@ pbgtest(model.fixed)
 # in favor of alternative hypothbesis - serial correlation exists in 
 # indiosyncratic errors
 
+# Test for heteroscedasticity (Breusch-Pagan test)
+bptest(af_valence ~ sky + temperature + log_streams + 
+                  af_danceability + af_energy + af_key + 
+                  af_loudness + af_speechiness + af_acousticness + 
+                  af_tempo, 
+       data = data,
+       studentize = T)
+# p-value < 5% (significance level alpha), we reject null hypothesis
+# in favor of alternative hypothesis - errors in the model are heteroscedastic
+
+# Apply robust standard errors to obtain unbiased estimations
+coeftest(model.fixed, vcov. = vcovHC(model.fixed, 
+                                     method = "white1",
+                                     type = "HC0",
+                                     cluster = "group"))
