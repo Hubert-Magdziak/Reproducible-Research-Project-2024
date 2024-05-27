@@ -36,3 +36,19 @@ plot_histograms <- function(data) {
 
 plot_histograms(data)
 
+# Feature engineering
+
+# Apply log(x + 1) transformation for variables with highly non symmetric distribution
+par(mfrow = c(1,2))
+hist(log1p(data$streams), main = "Histogram of variable log_streams")
+hist(data$streams, main = "Histogram of variable streams")
+par(mfrow = c(1,1))
+
+data$log_streams <- log1p(data$streams)
+
+par(mfrow = c(1,2))
+hist(data$af_acousticness, main = "Histogram of variable log_af_acousticness")
+hist(log1p(data$af_acousticness), main = "Histogram of variable af_acousticness")
+par(mfrow = c(1,1))
+
+data$log_af_acousticness <- log1p(data$af_acousticness)
