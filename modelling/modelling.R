@@ -1,9 +1,10 @@
 # Libraries
-library(dplyr)
-library(ggplot2)
-library(plm)
-library(zoo)
-library(lmtest)
+if (!require(dplyr)) {install.packages("dplyr"); library(dplyr)}
+if (!require(ggplot2)) {install.packages("ggplot2"); library(ggplot2)}
+if (!require(plm)) {install.packages("plm"); library(plm)}
+if (!require(zoo)) {install.packages("zoo"); library(zoo)}
+if (!require(lmtest)) {install.packages("lmtest"); library(lmtest)}
+
 # Read the data
 data <- read.csv(file = "preprocessed_data.csv")
 data <- data %>% select(-X)
@@ -116,3 +117,4 @@ coeftest(model.fixed, vcov. = vcovHC(model.fixed,
                                      method = "white1",
                                      type = "HC0",
                                      cluster = "group"))
+
