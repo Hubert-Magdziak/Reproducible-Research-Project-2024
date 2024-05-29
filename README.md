@@ -7,17 +7,17 @@ Required libraries to conduct the analysis:
 
 Python:
 `pandas`
--numpy
--matplotlib
--seaborn
--scipy
+`numpy`
+`matplotlib`
+`seaborn`
+`scipy`
 
 R:
--dplyr
--ggplot2
--plm
--zoo
--lmtest
+`dplyr`
+`ggplot2`
+`plm`
+`zoo`
+`lmtest`
 
 The source of the data used in the project:
 https://github.com/WarsawEconometricChallenge/WEC_2021
