@@ -6,7 +6,7 @@ The study aims to establish the factors affecting the valence (happiness/positiv
 Required libraries to conduct the analysis:
 
 Python:
--pandas
+`pandas`
 -numpy
 -matplotlib
 -seaborn
