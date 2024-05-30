@@ -1,0 +1,28 @@
+---
+title: "RR_presentation"
+date: "2024-05-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r libraries, echo=FALSE}
+# Libraries
+if (!require(dplyr)) {install.packages("dplyr"); library(dplyr)}
+if (!require(ggplot2)) {install.packages("ggplot2"); library(ggplot2)}
+if (!require(plm)) {install.packages("plm"); library(plm)}
+if (!require(zoo)) {install.packages("zoo"); library(zoo)}
+if (!require(lmtest)) {install.packages("lmtest"); library(lmtest)}
+```
+```{r read}
+# Read the data
+data <- read.csv(file = "preprocessed_data.csv")
+data <- data %>% select(-X)
+
+# Check the structure
+str(data)
+```
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
