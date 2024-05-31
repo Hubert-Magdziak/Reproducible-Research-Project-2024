@@ -8,7 +8,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-
+Load the libraries in a reproducible way.
 ```{r libraries, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
 # Libraries
 if (!require(dplyr)) {install.packages("dplyr"); library(dplyr)}
@@ -26,6 +26,7 @@ data <- data %>% select(-X)
 str(data)
 ```
 
+We perform Exploratory Data Analysis to get to know the data.
 ```{r EDA}
 # Summary statistics
 data %>%
@@ -56,24 +57,31 @@ plot_histograms <- function(data) {
 plot_histograms(data)
 ```
 
+Based on the distribution of the variables we apply the logarithmic transformation
+to symmetrize the distribution.
 ```{r feature}
 # Feature engineering
 
 # Apply log(x + 1) transformation for variables with highly non symmetric distribution
 par(mfrow = c(1,2))
-hist(log1p(data$streams), main = "Histogram of variable log_streams")
-hist(data$streams, main = "Histogram of variable streams")
+hist(log1p(data$streams), main = "Histogram of variable log_streams", col = "blue", border = "black")
+hist(data$streams, main = "Histogram of variable streams", col = "blue", border = "black")
 par(mfrow = c(1,1))
 
 data$log_streams <- log1p(data$streams)
 
 par(mfrow = c(1,2))
-hist(data$af_acousticness, main = "Histogram of variable log_af_acousticness")
-hist(log1p(data$af_acousticness), main = "Histogram of variable af_acousticness")
+hist(data$af_acousticness, main = "Histogram of variable log_af_acousticness",
+     col = "tomato", border = "black")
+hist(log1p(data$af_acousticness), main = "Histogram of variable af_acousticness",
+     col = "tomato", border = "black")
 par(mfrow = c(1,1))
 
 data$log_af_acousticness <- log1p(data$af_acousticness)
 ```
+Initially we will calculate Fixed Effects Model, Random Effects Model and
+simple Pooled Regression. Then we will decide which model is most appropriate
+regarding to the data we have.
 ```{r FE}
 # Modelling
 
@@ -108,6 +116,12 @@ model.OLS <- lm(af_valence ~ sky + temperature + log_streams +
 summary(model.OLS)
 ```
 
+We perform Hausman test to check which model to choose between Fixed Effects Model
+and Random Effects Model.  
+Null hypothesis: Cov(u,X) = 0. 
+Alternative hypothesis: Cov(u,X) != 0. 
+According to the results of the test we go for Fixed Effects Model.
+
 ```{r hausman}
 # Select between Fixed Effects and Random Effects model
 
@@ -116,6 +130,10 @@ phtest(model.fixed, model.random)
 # p-value < 5% (significance level alpha), we reject null hypothesis in favor
 # of alternative hypothesis - Cov(u,X) != 0 - only Fixed Effects Model is appropriate
 ```
+As a next step we perform pFtest for poolability.  
+Null hypothesis: Individual effects are jointly insignificant. 
+Alternative hypothesis: Indifivual effects are jointly significant.  
+According to the results of the test we go for Fixed Effects Model.
 
 ```{r pFtest}
 # Test for poolability
@@ -124,6 +142,14 @@ pFtest(model.fixed, model.OLS)
 # in favor of alternative hypothesis - fixed effects model is more appropriate
 ```
 
+As the model is selected, we check the assumptions - lack of autocorrelation and
+homoscedasticity of the residuals. We will perform respectively Breusch-Godfrey
+test and Breusch-Pagan test.
+  
+Breusch-Pagan test null hypothesis: Serial correlation does not exist in indiosyncratic
+errors, alternative hypothesis: Serial correlation exists in indiosyncratic errors.
+According to the result of the test, our model exhibit serial correlation in the
+indiosyncratic errors.
 ```{r bgtest}
 # Test for correlation (Breusch-Godfrey test)
 pbgtest(model.fixed)
@@ -131,6 +157,9 @@ pbgtest(model.fixed)
 # in favor of alternative hypothbesis - serial correlation exists in 
 # indiosyncratic errors
 ```
+On the other hand due to the Breusch-Pagan test, the residuals in our model
+are heteroscedastic. Therefore we cannot conclude on the standard errors in the model,
+they are biased. To prevent from that we will use robust standard errors.
 
 ```{r bptest}
 # Test for heteroscedasticity (Breusch-Pagan test)
@@ -144,13 +173,17 @@ bptest(af_valence ~ sky + temperature + log_streams +
 # in favor of alternative hypothesis - errors in the model are heteroscedastic
 
 ```
+As the conditions about lack of autocorrelation of the errors and homoscedasticity of the errors
+are not met, we applied robust standard errors. Now we can conclude on the significance of the
+variables. Standard errors are not biased.
 
 ```{r final_model}
 # Apply robust standard errors to obtain unbiased estimations
-coeftest(model.fixed, vcov. = vcovHC(model.fixed, 
+final_model <- coeftest(model.fixed, vcov. = vcovHC(model.fixed, 
                                      method = "white1",
                                      type = "HC0",
                                      cluster = "group"))
 
-```
+final_model
 
+```
