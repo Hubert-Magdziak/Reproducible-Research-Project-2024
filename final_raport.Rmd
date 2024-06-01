@@ -38,7 +38,6 @@ data %>%
   arrange(desc(sum_streams))
 ```
 
-
 ```{r dist}
 # Check the distribution of variables
 
@@ -47,7 +46,8 @@ data %>%
 plot_histograms <- function(data) {
   
   numeric_cols <- sapply(data, is.numeric)
-  data_numeric <- data[, numeric_cols]
+  data_numeric <- data[, numeric_cols] %>% select(-c('time', 'year_month'))
+  
   for (col in colnames(data_numeric)) {
     hist(data_numeric[[col]], main = paste("Histogram of", col), xlab = col, ylab = "Frequency", col = "blue", border = "black")
   }
