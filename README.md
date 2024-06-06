@@ -11,6 +11,8 @@ Python:
 `matplotlib`
 `seaborn`
 `scipy`
+`missingno`
+
 
 R:
 `dplyr`
